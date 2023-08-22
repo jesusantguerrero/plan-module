@@ -61,9 +61,8 @@ class PlanItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $_planId, PlanItem $item)
     {
-        $item = PlanItem::find($id);
         $item->update($request->post());
         $item->saveFields($request->post('fields'));
         $item->saveCheckList($request->post('checklist'));
@@ -76,9 +75,8 @@ class PlanItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($planId, PlanItem $item)
     {
-        $item = PlanItem::find($id);
         $item->delete();
         return $item;
     }

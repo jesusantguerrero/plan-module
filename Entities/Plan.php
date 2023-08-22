@@ -120,6 +120,7 @@ class Plan extends Model
         $field = $this->fields()->where(["$fieldToSearch" =>  "$valueToSearch"])->limit(1)->get();
         $field = count($field) ? $field[0] : null;
         if (!$field) {
+            dd($field);
             $field = $this->fields()->create([
                 'user_id' => $this->user_id,
                 'team_id' => $this->team_id,

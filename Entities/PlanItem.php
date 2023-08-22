@@ -20,7 +20,7 @@ class PlanItem extends Model
         'title', 
         'order', 
         'user_id', 
-        'done',
+        'is_done',
         'commit_date', 
         'points'
     ];
@@ -68,10 +68,10 @@ class PlanItem extends Model
         if ($fields) {
             foreach ($fields as $field) {
                 $boardField = $this->stage->board->findOrCreateField($field);
-                $fieldInstance = FieldValue::where(['field_id' => $boardField->id, 'entity_id' => $this->id])->get();
-                if (count($fieldInstance) && isset($fieldInstance[0])) {
-                    $fieldInstance[0]->value = isset($field['value']) ? $field['value'] : '';
-                    $fieldInstance[0]->save();
+                $fieldInstance = FieldValue::where(['field_id' => $boardField->id, 'entity_id' => $this->id])->first();
+                if ($fieldInstance && isset($fieldInstance[0])) {
+                    $fieldInstance->value = isset($field['value']) ? $field['value'] : '';
+                    $fieldInstance->save();
                 } else {
                     $this->fields()->create([
                         'user_id' => $this->user_id,
