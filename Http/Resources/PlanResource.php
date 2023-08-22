@@ -3,7 +3,6 @@
 namespace Modules\Plan\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\URL;
 
 class PlanResource extends JsonResource
 {
@@ -21,7 +20,8 @@ class PlanResource extends JsonResource
             'stages' => $this->stages()->without('items')->get(),
             'color' => $this->color,
             'template'=> $this->planTemplate,
-            'type' => $this->planType
+            'type' => $this->planType,
+            'fields' => $this->fields,
         ];
     }
 }

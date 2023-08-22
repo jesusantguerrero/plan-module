@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Http\Resources;
+namespace Modules\Plan\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class Item extends JsonResource
+class PlanItemResource extends JsonResource
 {
+    public static $wrap = null;
     /**
      * Transform the resource into an array.
      *
@@ -23,7 +24,6 @@ class Item extends JsonResource
             'commit_date' => $this->commit_date,
             'color' => $this->color,
             'stage' => $this->stage ? $this->stage->name : "",
-            'duration' => $this->timeEntries->sum('duration'),
             'board_id' =>  $this->stage ? $this->stage->board_id : '',
             'fields' => $this->whenLoaded('fields', function () {
                 return $this->fields->map(function ($field) {

@@ -13,10 +13,12 @@
 
 use Modules\Plan\Http\Controllers\ChoreController;
 use Modules\Plan\Http\Controllers\EquipmentController;
+use Modules\Plan\Http\Controllers\PlanItemController;
 use Modules\Plan\Http\Controllers\PlanController;
 
-Route::prefix('housing')->group(function() {
+Route::middleware(['auth:sanctum', 'atmosphere.teamed', 'verified'])->prefix('housing')->group(function() {
     Route::resource('/plans', PlanController::class);
     Route::resource('/chores', ChoreController::class);
     Route::resource('/equipments', EquipmentController::class);
+    Route::apiResource('plans.items', PlanItemController::class);
 });
