@@ -1,5 +1,5 @@
 {
-    "name": "nwidart/plan",
+    "name": "jesusantguerrero/plan",
     "description": "",
     "authors": [
         {
@@ -19,5 +19,6 @@
         "psr-4": {
             "Modules\\Plan\\": ""
         }
-    }
+    },
+    "type": "laravel-module"
 }

@@ -2,13 +2,11 @@
 
 namespace Modules\Plan\Listeners;
 
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Laravel\Jetstream\Events\TeamCreated;
 use Modules\Plan\Entities\PlanTypes;
 use Modules\Plan\Services\PlanService;
 
-class CreateTeamBoards
+class CreateTeamPlans
 {
 
     public function handle(TeamCreated $event)
