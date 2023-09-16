@@ -22,6 +22,7 @@ return new class extends Migration
             $table->foreignId('last_stage_id')->nullable();
             $table->foreignId('last_view_id')->default(1);
 
+            $table->string('plan_type_name')->nullable();
             $table->string('name');
             $table->text('description')->nullable();
             $table->text('cover')->nullable();
