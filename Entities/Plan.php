@@ -83,7 +83,8 @@ class Plan extends Model
                         $fieldDB->labels()->create([
                             'user_id' => $fieldDB->user_id,
                             'team_id' => $fieldDB->team_id,
-                            'board_id' => $fieldDB->board_id,
+                            'labelable_group_id' => $fieldDB->board_id,
+                            'labelable_group_type' => Plan::class,
                             'name' => $label['name'],
                             'label' => $label['label'],
                             'color' => $label['color'],
