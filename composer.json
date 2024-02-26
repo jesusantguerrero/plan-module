@@ -1,6 +1,7 @@
 {
     "name": "insane/plan-module",
-    "description": "",
+    "description": "Task & Boards module for neatlancer",
+    "license": "MIT",
     "authors": [
         {
             "name": "Jesus Guerrero",
