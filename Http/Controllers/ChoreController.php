@@ -15,4 +15,8 @@ class ChoreController
             'chores' =>  [$service->getPlanType($user->current_team_id, PlanTypes::CHORES, request())]
         ]);
     }
+
+    public function store(PlanService $service) {
+       $service->createPlanBoard(request()->user()->currentTeam, PlanTypes::CHORES);
+    }
 }

@@ -63,7 +63,9 @@ class Plan extends Model
     }
 
     public function setUp() {
-        $defaultTemplate = $this->template ?? PlanTemplate::find(1);
+        $defaultTemplate = $this->template ?? PlanTemplate::where([
+            "name" => $this->plan_type_name
+        ])->first();
         $templateConfig = json_decode($defaultTemplate->config, true);
         $fields = $templateConfig['fields'];
         $stages = $templateConfig['stages'] ?? null;
@@ -121,7 +123,6 @@ class Plan extends Model
         $field = $this->fields()->where(["$fieldToSearch" =>  "$valueToSearch"])->limit(1)->get();
         $field = count($field) ? $field[0] : null;
         if (!$field) {
-            dd($field);
             $field = $this->fields()->create([
                 'user_id' => $this->user_id,
                 'team_id' => $this->team_id,
@@ -141,5 +142,23 @@ class Plan extends Model
             $stage->deleteRelated();
         }
         $stages->delete();
+    }
+
+    public function addItem($user, $itemData) {
+        $item = new PlanItem();
+        $item = $item::create(array_merge($itemData, [
+            "plan_id" => $this->id,
+            "user_id" => $user->id,
+            "team_id" => $user->current_team_id,
+        ]));
+
+        if (isset($itemData['fields'])) {
+            $item->saveFields($itemData['fields']);
+        }
+
+        if (isset($itemData['checklist'])) {
+            $item->saveCheckList($itemData['checklist']);
+        }
+        return $item;
     }
 }

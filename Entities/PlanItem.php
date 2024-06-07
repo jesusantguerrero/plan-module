@@ -2,26 +2,26 @@
 
 namespace Modules\Plan\Entities;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use RRule\RRule;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Plan\Entities\Traits\ItemScopeTrait;
-use RRule\RRule;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PlanItem extends Model
 {
     protected $fillable = [
-        'plan_id', 
-        'team_id', 
+        'plan_id',
+        'team_id',
         'stage_id',
-        'resource_id', 
+        'resource_id',
         'rrule' ,
-        'resource_type', 
-        'resource_origin', 
-        'title', 
-        'order', 
-        'user_id', 
+        'resource_type',
+        'resource_origin',
+        'title',
+        'order',
+        'user_id',
         'is_done',
-        'commit_date', 
+        'commit_date',
         'points'
     ];
     protected $with = ['fields', 'checklist'];
@@ -32,9 +32,9 @@ class PlanItem extends Model
     {
         parent::boot();
         self::updating(function ($model) {
-            if (!$model->commit_date && $model->done) {
+            if (!$model->commit_date && $model->is_done) {
                 $model->commit_date = now()->format('Y-m-d');
-            } else if (!$model->done) {
+            } else if (!$model->is_done) {
                 $model->commit_date = null;
             }
         });

@@ -17,6 +17,7 @@ class PlanService
         $plan->name = $planTypeName ?? $type->name;
         $plan->save();
         $plan->createMainStage();
+        return $plan;
    }
 
    public function getPlanType($teamId, PlanTypes $planType, $filters)
@@ -25,6 +26,9 @@ class PlanService
             'team_id' => $teamId,
             'plan_type_name' => $planType
         ])->first();
+
+        if (!$plan) return null;
+
         return [
             'id' => $plan->id,
             'name' => $plan->name,
@@ -41,5 +45,15 @@ class PlanService
                         ->get())->values()
                 ];
         })];
+    }
+
+   public function getPlanTypeModel($teamId, PlanTypes $planType)
+    {
+        $plan = Plan::where([
+            'team_id' => $teamId,
+            'plan_type_name' => $planType
+        ])->first();
+
+        return $plan;
     }
 }
