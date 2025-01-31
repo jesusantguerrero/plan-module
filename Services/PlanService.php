@@ -47,6 +47,54 @@ class PlanService
         })];
     }
 
+    public function getPlanById($planId, $filters)
+    {
+        $plan = Plan::where([
+            'id' => $planId,
+        ])->first();
+
+        if (!$plan) return null;
+
+        return [
+            'id' => $plan->id,
+            'name' => $plan->name,
+            'fields' => $plan->fields,
+            'labels' => $plan->labels,
+            'stages' => $plan->stages->map(function ($stage) use($filters) {
+                return [
+                    'id' => $stage->id,
+                    'board_id' => $stage->board_id,
+                    'name' => $stage->name,
+                    'items' => PlanItemResource::collection($stage->items()
+                        ->filter($filters->only('search', 'done'))
+                        ->orderByField($filters->only('sort'))
+                        ->get())->values()
+                ];
+        })];
+    }
+
+    public function listCustomBoards($teamId)
+    {
+        $plans = Plan::where([
+            'team_id' => $teamId,
+        ])
+        ->whereNotIn('plan_type_name', [PlanTypes::CHORES, PlanTypes::EQUIPMENTS, PlanTypes::PLANS])
+        ->get();
+
+
+        
+
+        return $plans->map(function ($board) {
+            return [
+                'id' => $board->id,
+                'name' => $board->name,
+                'color' => $board->color,
+                'description' => $board->description,
+                'template'=> $board->boardTemplate,
+            ];
+        });
+    }
+
    public function getPlanTypeModel($teamId, PlanTypes $planType)
     {
         $plan = Plan::where([
@@ -56,4 +104,25 @@ class PlanService
 
         return $plan;
     }
+
+    
+    public function findOrCreateBySlug(Team $team, string $planTypeName, PlanTypes $type = null) {
+
+        $plan = Plan::where([
+            'team_id' => $team->id,
+            'name' => $planTypeName
+        ])->first();
+
+        if (!$plan) {
+            $plan = new Plan();
+            $plan->user_id =  $team->user_id;
+            $plan->team_id = $team->id;
+            $plan->plan_type_name = $type ?? "custom";
+            $plan->name = $planTypeName ?? $type->name;
+            $plan->save();
+            $plan->createMainStage();
+        }
+
+        return $plan;
+   }
 }

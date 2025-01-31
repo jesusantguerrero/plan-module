@@ -66,6 +66,8 @@ class Plan extends Model
         $defaultTemplate = $this->template ?? PlanTemplate::where([
             "name" => $this->plan_type_name
         ])->first();
+
+        if (!$defaultTemplate) return;
         $templateConfig = json_decode($defaultTemplate->config, true);
         $fields = $templateConfig['fields'];
         $stages = $templateConfig['stages'] ?? null;
@@ -129,7 +131,6 @@ class Plan extends Model
                 'name' => $fieldData['name'],
                 'title' => empty($fieldData['title']) ? \ucwords(str_replace("_", " ", $fieldData['name'])) : $fieldData['title'],
                 'type' => $fieldData['type'] ?? 'text',
-                'hide' => $fieldData['hide'] ?? 0,
             ]);
         }
         return $field;
