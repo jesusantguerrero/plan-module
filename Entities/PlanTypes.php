@@ -6,4 +6,5 @@ enum PlanTypes: string {
     case PLANS = 'plans';
     case EQUIPMENTS = 'equipments';
     case SHOPPING_LIST = 'shopping_list';
+    case CUSTOM = 'custom';
 }
