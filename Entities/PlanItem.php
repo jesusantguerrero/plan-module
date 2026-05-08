@@ -9,32 +9,56 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PlanItem extends Model
 {
+    // 3-state model used by shopping lists. Other plan types (chores, kanban)
+    // keep using the binary `is_done` and stay in `STATE_PENDING` / `STATE_BUY`
+    // automatically via the boot sync below.
+    const STATE_PENDING = 'pending';
+
+    const STATE_BUY = 'buy';
+
+    const STATE_SKIP = 'skip';
+
     protected $fillable = [
         'plan_id',
         'team_id',
         'stage_id',
         'resource_id',
-        'rrule' ,
+        'rrule',
         'resource_type',
         'resource_origin',
         'title',
         'order',
         'user_id',
         'is_done',
+        'state',
         'commit_date',
-        'points'
+        'points',
     ];
+
     protected $with = ['fields', 'checklist'];
+
     use HasFactory;
     use ItemScopeTrait;
 
     protected static function boot()
     {
         parent::boot();
+
+        // Two-way sync between binary `is_done` and 3-state `state` so legacy
+        // callers that flip `is_done` keep working AND new shopping-list code
+        // that sets `state` directly stays consistent.
+        self::saving(function ($model) {
+            if ($model->isDirty('state')) {
+                $model->is_done = $model->state === self::STATE_BUY;
+            } elseif ($model->isDirty('is_done')) {
+                $model->state = $model->is_done ? self::STATE_BUY : self::STATE_PENDING;
+            }
+        });
+
         self::updating(function ($model) {
-            if (!$model->commit_date && $model->is_done) {
+            if (! $model->commit_date && $model->is_done) {
                 $model->commit_date = now()->format('Y-m-d');
-            } else if (!$model->is_done) {
+            } elseif (! $model->is_done) {
                 $model->commit_date = null;
             }
         });
@@ -106,6 +130,37 @@ class PlanItem extends Model
 
     public function timeEntries() {
         return $this->hasMany('App\Models\TimeEntry', 'item_id', 'id');
+    }
+
+    /**
+     * Advance through pending → buy → skip → pending. Used by the shopping
+     * list chat-style UI where a tap cycles the row.
+     */
+    public function cycleState(): self
+    {
+        $this->state = match ($this->state) {
+            self::STATE_PENDING => self::STATE_BUY,
+            self::STATE_BUY => self::STATE_SKIP,
+            default => self::STATE_PENDING,
+        };
+        $this->save();
+
+        return $this;
+    }
+
+    /**
+     * Set state explicitly. Validates the value to avoid silent-typos under
+     * `Model::preventSilentlyDiscardingAttributes`.
+     */
+    public function setState(string $state): self
+    {
+        if (! in_array($state, [self::STATE_PENDING, self::STATE_BUY, self::STATE_SKIP], true)) {
+            throw new \InvalidArgumentException("Invalid plan item state: {$state}");
+        }
+        $this->state = $state;
+        $this->save();
+
+        return $this;
     }
 
     public static function createEvent($eventData, $uniqueBy = null) {
