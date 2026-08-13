@@ -5,6 +5,7 @@ namespace Modules\Plan\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Item as ResourcesItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Http\Response;
 use Modules\Plan\Entities\Plan;
 use Modules\Plan\Entities\PlanItem;
@@ -33,7 +34,11 @@ class PlanItemController extends Controller
     {
         $postData = $request->post();
         $item = new PlanItem();
-        $item = $item::create(array_merge($postData, [
+        // Only mass-assign real columns: the payload also carries `fields`,
+        // `checklist`, `board_id` and flattened field values (owner/status/...),
+        // none of which are columns. Under Model::preventSilentlyDiscardingAttributes
+        // (on outside production) passing them to create() throws.
+        $item = $item::create(array_merge(Arr::only($postData, $item->getFillable()), [
             "plan_id" => $plan->id,
             "user_id" => $request->user()->id,
             "team_id" => $request->user()->current_team_id,
@@ -63,7 +68,7 @@ class PlanItemController extends Controller
      */
     public function update(Request $request, $_planId, PlanItem $item)
     {
-        $item->update($request->post());
+        $item->update(Arr::only($request->post(), $item->getFillable()));
         $item->saveFields($request->post('fields'));
         $item->saveCheckList($request->post('checklist'));
         return $item;
