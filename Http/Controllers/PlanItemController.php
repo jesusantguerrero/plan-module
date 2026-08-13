@@ -45,7 +45,7 @@ class PlanItemController extends Controller
         ]));
         $item->saveFields($request->post('fields'));
         $item->saveCheckList($request->post('checklist'));
-        return $response->send($item);
+        return $item;
     }
 
     /**

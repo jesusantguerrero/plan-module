@@ -64,10 +64,11 @@ class PlanItem extends Model
         });
 
         self::creating(function ($model) {
+            // Default chores to a daily recurrence so the family/kitchen screen
+            // re-populates each day (chores:reset-recurring reads this rrule).
             $rrule = new RRule([
-                'FREQ' => 'weekly',
+                'FREQ' => 'daily',
                 'INTERVAL' => 1,
-                'BYDAY' => ['MO','TH', 'SA'],
                 'DTSTART' => now()->format('Y-m-d'),
                 'UNTIL' => '3099-12-31'
             ]);
