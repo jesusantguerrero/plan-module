@@ -93,7 +93,7 @@ class PlanItem extends Model
             foreach ($fields as $field) {
                 $boardField = $this->stage->board->findOrCreateField($field);
                 $fieldInstance = FieldValue::where(['field_id' => $boardField->id, 'entity_id' => $this->id])->first();
-                if ($fieldInstance && isset($fieldInstance[0])) {
+                if ($fieldInstance) {
                     $fieldInstance->value = isset($field['value']) ? $field['value'] : '';
                     $fieldInstance->save();
                 } else {
@@ -104,7 +104,6 @@ class PlanItem extends Model
                         'field_id' => $boardField->id,
                         'field_name' => $boardField->name,
                         'value' => $field['value'] ?? '',
-                        'hide' => $field['hide'] ?? 0
                     ]);
                 }
             }
