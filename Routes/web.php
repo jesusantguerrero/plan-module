@@ -18,6 +18,7 @@ use Modules\Plan\Http\Controllers\EquipmentController;
 
 Route::middleware(['auth:sanctum', 'atmosphere.teamed', 'verified'])->prefix('housing')->group(function() {
     Route::resource('/plans', PlanController::class);
+    Route::get('/chores/screen', [ChoreController::class, 'screen'])->name('chores.screen');
     Route::resource('/chores', ChoreController::class);
     Route::resource('/equipments', EquipmentController::class);
     Route::apiResource('plans.items', PlanItemController::class);

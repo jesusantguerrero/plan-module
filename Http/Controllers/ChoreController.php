@@ -35,6 +35,27 @@ class ChoreController
         ]);
     }
 
+    public function screen(PlanService $service) {
+        $user = request()->user();
+        $request = request();
+        if (! $request->has('done')) {
+            $request->merge(['done' => 'today']);
+        }
+
+        return inertia('Housing/ChoresScreen', [
+            'chores' => [$service->getPlanType($user->current_team_id, PlanTypes::CHORES, $request)],
+            'users' => LogerProfile::where('team_id', $user->current_team_id)
+                ->get(['id', 'name'])
+                ->map(fn ($p) => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                    'label' => $p->name,
+                    'value' => $p->name,
+                ])
+                ->all(),
+        ]);
+    }
+
     public function store(PlanService $service) {
        $service->createPlanBoard(request()->user()->currentTeam, PlanTypes::CHORES);
     }
