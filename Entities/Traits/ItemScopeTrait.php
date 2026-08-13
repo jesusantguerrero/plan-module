@@ -24,6 +24,12 @@ trait ItemScopeTrait {
         })->when($done , function ($query, $done) {
             if ($done == 'only') {
                 $query->where('done', 1);
+            } elseif ($done == 'today') {
+                // "Today at-a-glance": pending chores + those completed today.
+                $today = now()->format('Y-m-d');
+                $query->where(function ($q) use ($today) {
+                    $q->whereNull('commit_date')->orWhereDate('commit_date', $today);
+                });
             } elseif ($done == -1) {
                 $query->whereNull('commit_date');
             }

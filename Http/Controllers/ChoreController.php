@@ -12,11 +12,11 @@ class ChoreController
     public function index(PlanService $service) {
         $user = request()->user();
         $request = request();
-        // Include completed chores too so the family view can show checked cards
-        // and the per-member points/streak. getPlanType otherwise defaults to
-        // done=-1 (whereNull commit_date) and hides finished chores.
+        // Today at-a-glance: show pending chores + those completed today, so the
+        // family view keeps today's checked cards and per-member streak without
+        // dragging in every chore ever finished.
         if (! $request->has('done')) {
-            $request->merge(['done' => 0]);
+            $request->merge(['done' => 'today']);
         }
 
         return inertia('Housing/Chores', [
