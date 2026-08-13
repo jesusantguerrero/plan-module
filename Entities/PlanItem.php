@@ -77,6 +77,24 @@ class PlanItem extends Model
         });
     }
 
+    /**
+     * Build an rrule string from a simple UI preset. 'once' => null (no recurrence,
+     * so the chore never resets). Used by the family screen's recurrence picker.
+     */
+    public static function rruleForPreset(string $preset, ?string $fallback = null): ?string
+    {
+        $start = now()->format('Y-m-d');
+        $until = '3099-12-31';
+
+        return match ($preset) {
+            'daily' => (new RRule(['FREQ' => 'daily', 'INTERVAL' => 1, 'DTSTART' => $start, 'UNTIL' => $until]))->rfcString(),
+            'weekdays' => (new RRule(['FREQ' => 'weekly', 'INTERVAL' => 1, 'BYDAY' => ['MO', 'TU', 'WE', 'TH', 'FR'], 'DTSTART' => $start, 'UNTIL' => $until]))->rfcString(),
+            'weekly' => (new RRule(['FREQ' => 'weekly', 'INTERVAL' => 1, 'BYDAY' => [strtoupper(now()->format('D'))], 'DTSTART' => $start, 'UNTIL' => $until]))->rfcString(),
+            'once' => null,
+            default => $fallback,
+        };
+    }
+
     public function fields() {
         return $this->hasMany(FieldValue::class, 'entity_id', 'id');
     }

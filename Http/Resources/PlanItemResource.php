@@ -20,6 +20,7 @@ class PlanItemResource extends JsonResource
             'title' => $this->title,
             'resource_type' => $this->resource_type,
             'is_done' => $this->is_done,
+            'rrule' => $this->rrule,
             'points' => $this->points,
             'commit_date' => $this->commit_date,
             'color' => $this->color,

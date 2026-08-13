@@ -68,7 +68,11 @@ class PlanItemController extends Controller
      */
     public function update(Request $request, $_planId, PlanItem $item)
     {
-        $item->update(Arr::only($request->post(), $item->getFillable()));
+        $data = Arr::only($request->post(), $item->getFillable());
+        if ($request->filled('recurrence')) {
+            $data['rrule'] = PlanItem::rruleForPreset($request->input('recurrence'), $item->rrule);
+        }
+        $item->update($data);
         $item->saveFields($request->post('fields'));
         $item->saveCheckList($request->post('checklist'));
         return $item;
