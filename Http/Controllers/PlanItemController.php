@@ -32,7 +32,9 @@ class PlanItemController extends Controller
      */
     public function store(Request $request, Response $response, Plan $plan)
     {
+        $this->ensureTeamPlan($plan);
         $postData = $request->post();
+        $this->ensureStageOfPlan($plan, $postData['stage_id'] ?? null);
         $item = new PlanItem();
         // Only mass-assign real columns: the payload also carries `fields`,
         // `checklist`, `board_id` and flattened field values (owner/status/...),
@@ -66,9 +68,11 @@ class PlanItemController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $_planId, PlanItem $item)
+    public function update(Request $request, $planId, PlanItem $item)
     {
-        $data = Arr::only($request->post(), $item->getFillable());
+        $this->ensureItemOfPlan($planId, $item);
+        $data = Arr::except(Arr::only($request->post(), $item->getFillable()), ['plan_id', 'team_id', 'user_id']);
+        $this->ensureStageOfPlan(Plan::find($item->plan_id), $data['stage_id'] ?? null);
         if ($request->filled('recurrence')) {
             $data['rrule'] = PlanItem::rruleForPreset($request->input('recurrence'), $item->rrule);
         }
@@ -86,6 +90,7 @@ class PlanItemController extends Controller
      */
     public function destroy($planId, PlanItem $item)
     {
+        $this->ensureItemOfPlan($planId, $item);
         $item->delete();
         return $item;
     }
@@ -99,8 +104,31 @@ class PlanItemController extends Controller
     public function bulkDelete(Request $request)
     {
         $items = $request->post();
-        PlanItem::whereIn('id', $items)->delete();
+        PlanItem::where('team_id', $request->user()->current_team_id)->whereIn('id', $items)->delete();
         return $items;
+    }
+
+    private function ensureTeamPlan(Plan $plan): void
+    {
+        abort_unless((int) $plan->team_id === (int) request()->user()->current_team_id, 404);
+    }
+
+    private function ensureItemOfPlan($planId, PlanItem $item): void
+    {
+        abort_unless(
+            (int) $item->plan_id === (int) $planId
+                && (int) $item->team_id === (int) request()->user()->current_team_id,
+            404
+        );
+    }
+
+    private function ensureStageOfPlan(?Plan $plan, $stageId): void
+    {
+        if (! $stageId) {
+            return;
+        }
+
+        abort_unless($plan && $plan->stages()->whereKey($stageId)->exists(), 422, 'The stage does not belong to this plan.');
     }
 
     public function getTodo(Request $request) {

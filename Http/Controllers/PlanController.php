@@ -25,7 +25,7 @@ class PlanController
     {
         $request = request();
         
-        $boardData = $service->getPlanById($id, $request);
+        $boardData = $service->getPlanById($id, $request, $request->user()->current_team_id);
         if (!$boardData) {
             return redirect('dashboard');
         }

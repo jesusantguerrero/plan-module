@@ -47,11 +47,11 @@ class PlanService
         })];
     }
 
-    public function getPlanById($planId, $filters)
+    public function getPlanById($planId, $filters, ?int $teamId = null)
     {
         $plan = Plan::where([
             'id' => $planId,
-        ])->first();
+        ])->when($teamId, fn ($query) => $query->where('team_id', $teamId))->first();
 
         if (!$plan) return null;
 
