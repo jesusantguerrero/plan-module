@@ -2,7 +2,6 @@
 
 namespace Modules\Plan\Entities;
 
-use App\Domains\AppCore\Models\Label;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -13,7 +12,7 @@ class Field extends Model
     protected $fillable = ['name','board_id', 'title', 'type', 'options', 'user_id', 'team_id', "manual", 'hide'];
 
     public function options() {
-        return $this->morphMany(Label::class, 'labelable');
+        return $this->morphMany(config('plan.label_model'), 'labelable');
     }
 
     public function rules() {
@@ -25,7 +24,7 @@ class Field extends Model
     }
 
     public function labels() {
-        return $this->morphMany(Label::class, 'labelable');
+        return $this->morphMany(config('plan.label_model'), 'labelable');
     }
 
     public function deleteRelated() {

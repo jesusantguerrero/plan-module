@@ -64,6 +64,11 @@ class PlanItem extends Model
         });
 
         self::creating(function ($model) {
+            // Project tasks (and any type in plan.non_recurring_types) are one-off work.
+            if (in_array(self::planTypeValue($model->plan_id), config('plan.non_recurring_types', []), true)) {
+                return;
+            }
+
             // Default chores to a daily recurrence so the family/kitchen screen
             // re-populates each day (chores:reset-recurring reads this rrule).
             $rrule = new RRule([
@@ -75,6 +80,17 @@ class PlanItem extends Model
 
             $model->rrule = $rrule->rfcString();
         });
+    }
+
+    private static function planTypeValue($planId): ?string
+    {
+        if (! $planId) {
+            return null;
+        }
+
+        $type = Plan::whereKey($planId)->value('plan_type_name');
+
+        return $type instanceof PlanTypes ? $type->value : $type;
     }
 
     /**

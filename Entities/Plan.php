@@ -2,7 +2,6 @@
 
 namespace Modules\Plan\Entities;
 
-use App\Domains\AppCore\Models\Label;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -41,7 +40,7 @@ class Plan extends Model
     }
 
     public function labels() {
-        return $this->morphMany(Label::class, 'labelable');
+        return $this->morphMany(config('plan.label_model'), 'labelable');
     }
 
     public function template() {
